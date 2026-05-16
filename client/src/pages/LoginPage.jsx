@@ -1,12 +1,11 @@
 // src/pages/LoginPage.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff, ArrowRight, AlertCircle, Sparkles } from 'lucide-react';
 
-const API_URL = 'https://smartexpensetracker-cs85.onrender.com/api';
-
 export default function LoginPage() {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,15 +19,14 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, {
-        email,
-        password,
-      });
+      const result = await login(email, password);
 
-      console.log(response.data);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate('/dashboard');
+      if (result.success) {
+        navigate('/dashboard');
+        return;
+      }
+
+      setError(result.message || 'Login failed. Please check your credentials.');
     } catch (err) {
       const serverMsg = err.response?.data?.message;
       const status = err.response?.status;

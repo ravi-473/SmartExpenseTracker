@@ -1,12 +1,11 @@
 // src/pages/RegisterPage.jsx — Modern redesign with error handling
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 
-const API_URL = 'https://smartexpensetracker-cs85.onrender.com/api';
-
 export default function RegisterPage() {
+  const { register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -29,16 +28,14 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/auth/register`, {
-        name: form.name,
-        email: form.email,
-        password: form.password,
-      });
+      const result = await register(form.name, form.email, form.password);
 
-      console.log(response.data);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate('/dashboard');
+      if (result.success) {
+        navigate('/dashboard');
+        return;
+      }
+
+      setError(result.message || 'Registration failed. Please try again.');
     } catch (err) {
       const serverMsg = err.response?.data?.message;
       const status = err.response?.status;

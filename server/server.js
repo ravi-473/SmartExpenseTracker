@@ -48,6 +48,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Serve uploaded files (bill images) as static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Root route so the backend responds at the deployment root
+app.get('/', (req, res) => {
+  res.send('Backend API Running Successfully');
+});
+
 // ============================================
 // ROUTES
 // ============================================

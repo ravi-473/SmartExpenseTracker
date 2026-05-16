@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 
-const API_URL = 'https://smartexpensetracker-ib2p.onrender.com/api';
+const API_URL = 'https://smartexpensetracker-cs85.onrender.com/api';
 
 export default function RegisterPage() {
   const navigate = useNavigate();

@@ -31,7 +31,10 @@ app.use(helmet());
 
 // cors() allows your React frontend to talk to this backend
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'https://smart-expense-tracker-pink.vercel.app'
+  ],
   credentials: true,
 }));
 

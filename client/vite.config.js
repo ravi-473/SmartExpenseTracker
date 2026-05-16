@@ -7,7 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://smartexpensetracker-cs85.onrender.com/api',
+        target: 'https://smartexpensetracker-ib2p.onrender.com/api',
         changeOrigin: true,
       },
     },

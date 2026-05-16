@@ -1,7 +1,7 @@
 // src/utils/api.js - Axios API Configuration
 import axios from 'axios';
 
-const API_URL = 'https://smartexpensetracker-cs85.onrender.com/api';
+const API_URL = 'https://smartexpensetracker-ib2p.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_URL,

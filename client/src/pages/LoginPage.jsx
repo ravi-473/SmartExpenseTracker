@@ -1,33 +1,55 @@
 // src/pages/LoginPage.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 import { Eye, EyeOff, ArrowRight, AlertCircle, Sparkles } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://smartexpensetracker-ib2p.onrender.com/api';
+
 export default function LoginPage() {
-  const { login }    = useAuth();
-  const navigate     = useNavigate();
-  const [email, setEmail]       = useState('');
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPw, setShowPw]     = useState(false);
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');   // ← visible error string
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');       // clear previous error
+    setError('');
     setLoading(true);
 
-    const result = await login(email, password);   // always returns an object
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+      });
 
-    setLoading(false);
-
-    if (result.success) {
+      console.log(response.data);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/dashboard');
-    } else {
-      // Show the error directly in the UI — never silently swallow it
-      setError(result.message || 'Login failed. Please check your credentials.');
+    } catch (err) {
+      const serverMsg = err.response?.data?.message;
+      const status = err.response?.status;
+
+      let message;
+      if (serverMsg) {
+        message = serverMsg;
+      } else if (status === 401) {
+        message = 'Wrong email or password. Please try again.';
+      } else if (status === 400) {
+        message = 'Please fill in all fields correctly.';
+      } else if (!err.response) {
+        message = 'Cannot reach server. Is the backend running?';
+      } else {
+        message = 'Something went wrong. Please try again.';
+      }
+
+      setError(message);
+      console.log(err);
     }
+    setLoading(false);
   };
 
   // Shake input borders red when there's an error

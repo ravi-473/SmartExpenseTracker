@@ -1,11 +1,12 @@
 // src/pages/RegisterPage.jsx — Modern redesign with error handling
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 import { Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://smartexpensetracker-ib2p.onrender.com/api';
+
 export default function RegisterPage() {
-  const { register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -27,12 +28,35 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
-    const result = await register(form.name, form.email, form.password);
+    try {
+      const response = await axios.post(`${API_URL}/auth/register`, {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      });
 
-    if (result?.success) {
+      console.log(response.data);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/dashboard');
-    } else {
-      setError(result?.message || 'Registration failed. Please try again.');
+    } catch (err) {
+      const serverMsg = err.response?.data?.message;
+      const status = err.response?.status;
+      
+      let message;
+      if (serverMsg) {
+        message = serverMsg;
+      } else if (status === 400) {
+        message = 'Invalid details. Please check all fields.';
+      } else if (status === 409) {
+        message = 'This email is already registered. Try logging in instead.';
+      } else if (!err.response) {
+        message = 'Cannot reach server. Is the backend running?';
+      } else {
+        message = 'Registration failed. Please try again.';
+      }
+      setError(message);
+      console.log(err);
     }
     setLoading(false);
   };

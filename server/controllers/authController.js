@@ -194,7 +194,6 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, updateProfile };
 
 // ============================================
 // @route   POST /api/auth/forgot-password
@@ -284,3 +283,5 @@ const resetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+module.exports = { register, login, getMe, updateProfile, forgotPassword, resetPassword };

@@ -160,9 +160,6 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   className={`${inputCls} pr-12`}
                 />
-                <div className="mt-2 text-sm text-right">
-                  <a href="/forgot-password" className="text-blue-500 hover:underline">Forgot password?</a>
-                </div>
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
@@ -170,6 +167,9 @@ export default function LoginPage() {
                 >
                   {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
+              </div>
+              <div className="mt-2 text-sm text-right">
+                <Link to="/forgot-password" className="text-blue-500 hover:underline">Forgot password?</Link>
               </div>
             </div>
 

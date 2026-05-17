@@ -9,16 +9,23 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [resetUrl, setResetUrl] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
+    setResetUrl('');
     setLoading(true);
 
     try {
       const { data } = await api.post('/auth/forgot-password', { email });
-      setMessage(data.message || 'If this email is registered, a reset link has been sent.');
+      if (data.resetUrl) {
+        setResetUrl(data.resetUrl);
+        setMessage('Email sending failed or is not configured. Use the link below to reset your password.');
+      } else {
+        setMessage(data.message || 'If this email is registered, a reset link has been sent.');
+      }
     } catch (err) {
       const serverMsg = err.response?.data?.message;
       if (serverMsg) setError(serverMsg);
@@ -91,6 +98,14 @@ export default function ForgotPasswordPage() {
           <p className="text-sm text-gray-400 mb-6">
             Please check your inbox (and spam folder) for the password reset link.
           </p>
+          {resetUrl && (
+            <div className="mt-4 p-4 bg-gray-900/50 border border-gray-700/50 rounded-xl">
+              <p className="text-sm text-gray-400 mb-2">Fallback link (for testing without email):</p>
+              <a href={resetUrl} className="text-blue-400 hover:underline break-all text-sm font-mono">
+                {resetUrl}
+              </a>
+            </div>
+          )}
         </div>
       )}
 

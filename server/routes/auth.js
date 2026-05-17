@@ -48,6 +48,17 @@ router.post('/register', registerValidation, register);
 // POST /api/auth/login - Login
 router.post('/login', loginValidation, login);
 
+// POST /api/auth/forgot-password - Request password reset
+router.post('/forgot-password', [
+  body('email').trim().notEmpty().withMessage('Email is required').isEmail().withMessage('Invalid email'),
+], forgotPassword);
+
+// POST /api/auth/reset-password - Reset using token
+router.post('/reset-password', [
+  body('token').notEmpty().withMessage('Token is required'),
+  body('password').notEmpty().withMessage('Password is required').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+], resetPassword);
+
 // GET /api/auth/me - Get current user (protected)
 router.get('/me', protect, getMe);
 

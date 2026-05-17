@@ -42,6 +42,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '', // URL to profile picture
     },
+    // Password reset token (hashed) and expiry
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields

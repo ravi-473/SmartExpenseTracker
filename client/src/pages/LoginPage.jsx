@@ -124,8 +124,6 @@ export default function LoginPage() {
         </button>
       </form>
 
-      </form>
-
       <div className="mt-8 flex items-center gap-3">
         <div className="h-px flex-1 bg-white/10" />
         <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Or continue with</span>

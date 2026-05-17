@@ -1,5 +1,5 @@
 // src/pages/ProfilePage.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { User, Save, Wallet, Calendar } from 'lucide-react';
@@ -13,6 +13,25 @@ export default function ProfilePage() {
     monthlyBudget: user?.monthlyBudget || '',
   });
   const [saving, setSaving] = useState(false);
+  const [recentExpenses, setRecentExpenses] = useState([]);
+  const [loadingExpenses, setLoadingExpenses] = useState(false);
+
+  useEffect(() => {
+    const loadRecent = async () => {
+      setLoadingExpenses(true);
+      try {
+        const { data } = await api.get('/expenses?limit=10');
+        setRecentExpenses(data.data || []);
+      } catch (err) {
+        // silently ignore; profile should still work
+        console.error('Failed to load recent expenses', err.response?.data || err.message);
+      } finally {
+        setLoadingExpenses(false);
+      }
+    };
+
+    loadRecent();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -112,6 +131,40 @@ export default function ProfilePage() {
             Save Changes
           </button>
         </form>
+      </div>
+
+      {/* Recent user transactions */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-gray-900 dark:text-white">Your Recent Transactions</h2>
+        </div>
+
+        {loadingExpenses ? (
+          <div className="py-6 text-center text-sm text-gray-500">Loading recent transactions...</div>
+        ) : recentExpenses.length === 0 ? (
+          <div className="py-6 text-center text-sm text-gray-500">No recent transactions</div>
+        ) : (
+          <div className="space-y-3">
+            {recentExpenses.map((expense) => (
+              <div key={expense._id} className="flex items-center justify-between py-2 border-b border-gray-50 dark:border-gray-800 last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-medium ${
+                    expense.type === 'income' ? 'bg-green-100 dark:bg-green-900/20 text-green-600' : 'bg-red-100 dark:bg-red-900/20 text-red-500'
+                  }`}>
+                    {expense.type === 'income' ? '↑' : '↓'}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{expense.title}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{expense.category} • {new Date(expense.date).toLocaleDateString('en-IN')}</p>
+                  </div>
+                </div>
+                <span className={`text-sm font-semibold ${expense.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                  {expense.type === 'income' ? '+' : '-'}{new Intl.NumberFormat('en-IN', { style: 'currency', currency: user?.currency || 'INR', maximumFractionDigits: 0 }).format(expense.amount)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

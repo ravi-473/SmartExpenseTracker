@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { validationResult } = require('express-validator');
 const User = require('../models/User');
+const sendEmail = require('../utils/email');
 
 // ============================================
 // Helper: Generate a JWT token
@@ -226,7 +227,31 @@ const forgotPassword = async (req, res) => {
     const frontendBase = process.env.FRONTEND_URL || 'http://localhost:5173';
     const resetUrl = `${frontendBase}/reset-password/${resetToken}`;
 
-    // NOTE: In production you should email `resetUrl` to the user. Here we return it for convenience.
+    const emailSubject = 'Smart Expense Tracker Password Reset';
+    const emailText = `You requested a password reset. Use the link below to set a new password:\n\n${resetUrl}\n\nIf you did not request this, ignore this email.`;
+    const emailHtml = `
+      <p>You requested a password reset for <strong>Smart Expense Tracker</strong>.</p>
+      <p><a href="${resetUrl}" target="_blank" rel="noopener">Click here to reset your password</a></p>
+      <p>If clicking does not work, paste this URL into your browser:</p>
+      <p>${resetUrl}</p>
+      <p>If you did not request this reset, please ignore this email.</p>
+    `;
+
+    try {
+      if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+        await sendEmail({
+          to: user.email,
+          subject: emailSubject,
+          text: emailText,
+          html: emailHtml,
+        });
+        return res.json({ success: true, message: 'If this email is registered, a reset link has been sent.' });
+      }
+    } catch (emailError) {
+      console.error('Password reset email failed:', emailError);
+    }
+
+    // Fall back to returning the reset URL when SMTP is not configured or email fails
     return res.json({ success: true, message: 'Reset link generated', resetUrl });
   } catch (error) {
     console.error('Forgot password error:', error);

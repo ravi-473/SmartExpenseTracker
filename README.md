@@ -126,6 +126,12 @@ JWT_SECRET=your_long_random_secret_key_here
 OPENAI_API_KEY=sk-your-openai-key-here
 PORT=5000
 FRONTEND_URL=http://localhost:5173
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your_smtp_username
+SMTP_PASS=your_smtp_password
+SMTP_SECURE=false
+EMAIL_FROM="Smart Expense Tracker <no-reply@smartexpensetracker.com>"
 ```
 
 ```bash

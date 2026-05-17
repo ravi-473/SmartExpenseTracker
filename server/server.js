@@ -30,11 +30,17 @@ const app = express();
 app.use(helmet());
 
 // cors() allows your React frontend to talk to this backend
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const allowedOrigins = [frontendUrl, 'https://smart-expense-tracker-pink.vercel.app'];
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://smart-expense-tracker-pink.vercel.app'
-  ],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 
